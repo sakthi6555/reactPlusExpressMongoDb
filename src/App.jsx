@@ -6,6 +6,7 @@ import UserList from './components/UserList'
 
 import { getUser, addUser, updateUser, deleteUser } from './services/userService'
 import { create } from 'axios';
+import { UserProvider } from './context/UserContext'
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
@@ -37,11 +38,6 @@ function App() {
       loadUsers()
   }
 
-  // const edit = (user) => {
-  //   console.log(user)
-  //   setEdituser(user)
-  // }
-
   const remove = async (id) => {
     console.log(id)
     await deleteUser(id)
@@ -49,22 +45,19 @@ function App() {
   }
 
   return (
-    <Router>
-      <Routes>
-        {/* <Route path='/users/:id' element={<UserForm saveUser={saveUser} edituser={edituser}></UserForm>}>
-        </Route>
-        <Route path='/users' element={<UserForm saveUser={saveUser} edituser={edituser}></UserForm>}>
-        </Route> */}
 
-
-        <Route path='/users/:id' element={<UserForm saveUser={saveUser} ></UserForm>}>
-        </Route>
-        <Route path='/users' element={<UserForm saveUser={saveUser}></UserForm>}>
-        </Route>
-        <Route path='/' element={<UserList users = {users} remove = {remove}></UserList>}>
-        </Route>
-      </Routes>
+    <UserProvider>
+      <Router>
+        <Routes>
+          <Route path='/users/:id' element={<UserForm saveUser={saveUser} ></UserForm>}>
+          </Route>
+          <Route path='/users' element={<UserForm saveUser={saveUser}></UserForm>}>
+          </Route>
+          <Route path='/' element={<UserList users = {users} remove = {remove}></UserList>}>
+          </Route>
+        </Routes>
     </Router>
+    </UserProvider>
   )
 }
 
