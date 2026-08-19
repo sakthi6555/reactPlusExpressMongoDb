@@ -1,184 +1,253 @@
-import { Component, inject } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
-import { Store } from '@ngrx/store';
-import { BehaviorSubject, combineLatest, map } from 'rxjs';
+<div class="auth-container">
 
-import {
-  selectProducts,
-  selectProductsLoading
-} from '../../stores/product.selectors';
+  <mat-card class="auth-card">
 
-import { loadProducts } from '../../stores/product.actions';
+    <mat-card-header>
 
-import { ProductCardComponent } from '../../components/product-card/product-card.component';
-import {
-  ProductFilterComponent,
-  ProductFilter
-} from '../../components/product-filter/product-filter.component';
+      <mat-card-title>
+        Create Account
+      </mat-card-title>
 
-import { Product } from '../../models/product.model';
+      <mat-card-subtitle>
+        Register a new account
+      </mat-card-subtitle>
 
-@Component({
-  selector: 'app-product-list',
-  standalone: true,
-  imports: [
-    ProductCardComponent,
-    AsyncPipe,
-    ProductFilterComponent
-  ],
-  templateUrl: './product-list.component.html',
-  styleUrl: './product-list.component.scss'
-})
-export class ProductListComponent {
-
-  private store = inject(Store);
-
-  products = this.store.select(selectProducts);
-
-  loading = this.store.select(selectProductsLoading);
+    </mat-card-header>
 
 
-  // Current filter value
-  private filterSubject = new BehaviorSubject<ProductFilter>({
-    search: '',
-    category: 'all',
-    sortBy: 'default'
-  });
+    <mat-card-content>
+
+      <form
+        [formGroup]="registerForm"
+        (ngSubmit)="onRegister()">
 
 
-  // Products after search + category + sorting
-  filteredProducts = combineLatest([
-    this.products,
-    this.filterSubject
-  ]).pipe(
+        <!-- First Name -->
 
-    map(([products, filter]) =>
-      this.applyFilter(products, filter)
-    )
+        <mat-form-field appearance="outline">
 
-  );
+          <mat-label>First Name</mat-label>
+
+          <input
+            matInput
+            formControlName="firstName">
 
 
-  ngOnInit(): void {
-    this.store.dispatch(loadProducts());
-  }
+          @if (
+            registerForm.controls.firstName.hasError('required')
+            && registerForm.controls.firstName.touched
+          ) {
+
+            <mat-error>
+              First name is required
+            </mat-error>
+
+          }
+
+        </mat-form-field>
 
 
-  onFilterChange(filter: ProductFilter): void {
-    this.filterSubject.next(filter);
-  }
+        <!-- Last Name -->
+
+        <mat-form-field appearance="outline">
+
+          <mat-label>Last Name</mat-label>
+
+          <input
+            matInput
+            formControlName="lastName">
 
 
-  private applyFilter(
-    products: Product[],
-    filter: ProductFilter
-  ): Product[] {
+          @if (
+            registerForm.controls.lastName.hasError('required')
+            && registerForm.controls.lastName.touched
+          ) {
 
-    let result = [...products];
+            <mat-error>
+              Last name is required
+            </mat-error>
 
+          }
 
-    // -------------------------
-    // SEARCH
-    // -------------------------
-
-    if (filter.search.trim()) {
-
-      const searchText = filter.search
-        .toLowerCase()
-        .trim();
-
-      result = result.filter(product =>
-        product.title
-          .toLowerCase()
-          .includes(searchText)
-      );
-    }
+        </mat-form-field>
 
 
-    // -------------------------
-    // CATEGORY
-    // -------------------------
+        <!-- Email -->
 
-    if (filter.category !== 'all') {
+        <mat-form-field appearance="outline">
 
-      result = result.filter(product =>
-        product.category === filter.category
-      );
-    }
+          <mat-label>Email</mat-label>
 
-
-    // -------------------------
-    // SORT
-    // -------------------------
-
-    switch (filter.sortBy) {
-
-      case 'name-asc':
-
-        result.sort((a, b) =>
-          a.title.localeCompare(b.title)
-        );
-
-        break;
+          <input
+            matInput
+            type="email"
+            formControlName="email">
 
 
-      case 'name-desc':
+          @if (
+            registerForm.controls.email.hasError('required')
+            && registerForm.controls.email.touched
+          ) {
 
-        result.sort((a, b) =>
-          b.title.localeCompare(a.title)
-        );
+            <mat-error>
+              Email is required
+            </mat-error>
 
-        break;
-
-
-      case 'price-asc':
-
-        result.sort((a, b) =>
-          a.price - b.price
-        );
-
-        break;
+          }
 
 
-      case 'price-desc':
+          @if (
+            registerForm.controls.email.hasError('email')
+          ) {
 
-        result.sort((a, b) =>
-          b.price - a.price
-        );
+            <mat-error>
+              Enter a valid email address
+            </mat-error>
 
-        break;
-
-
-      case 'rating-asc':
-
-        result.sort((a, b) =>
-          a.rating.rate - b.rating.rate
-        );
-
-        break;
+          }
 
 
-      case 'rating-desc':
+          @if (
+            registerForm.controls.email.hasError('emailExists')
+          ) {
 
-        result.sort((a, b) =>
-          b.rating.rate - a.rating.rate
-        );
+            <mat-error>
+              This email is already registered
+            </mat-error>
 
-        break;
-    }
+          }
 
-
-    return result;
-  }
-
-
-  viewProduct(event: Product): void {
-    console.log(event);
-  }
+        </mat-form-field>
 
 
-  addToCart(event: Product): void {
-    console.log(event);
-  }
+        <!-- Password -->
 
-}
+        <mat-form-field appearance="outline">
+
+          <mat-label>Password</mat-label>
+
+          <input
+            matInput
+            type="password"
+            formControlName="password">
+
+
+          @if (
+            registerForm.controls.password.hasError('required')
+            && registerForm.controls.password.touched
+          ) {
+
+            <mat-error>
+              Password is required
+            </mat-error>
+
+          }
+
+
+          @if (
+            registerForm.controls.password.hasError('minlength')
+          ) {
+
+            <mat-error>
+              Password must be at least 8 characters
+            </mat-error>
+
+          }
+
+
+          @if (
+            registerForm.controls.password.hasError('pattern')
+          ) {
+
+            <mat-error>
+              Must contain uppercase, lowercase, digit and symbol
+            </mat-error>
+
+          }
+
+        </mat-form-field>
+
+
+        <!-- Confirm Password -->
+
+        <mat-form-field appearance="outline">
+
+          <mat-label>Confirm Password</mat-label>
+
+          <input
+            matInput
+            type="password"
+            formControlName="confirmPassword">
+
+
+          @if (
+            registerForm.controls.confirmPassword.hasError('required')
+            && registerForm.controls.confirmPassword.touched
+          ) {
+
+            <mat-error>
+              Confirm password is required
+            </mat-error>
+
+          }
+
+
+          @if (
+            registerForm.hasError('passwordMismatch')
+            && registerForm.controls.confirmPassword.touched
+          ) {
+
+            <mat-error>
+              Passwords do not match
+            </mat-error>
+
+          }
+
+        </mat-form-field>
+
+
+        <!-- Registration Error -->
+
+        @if (registerError) {
+
+          <div class="register-error">
+            {{ registerError }}
+          </div>
+
+        }
+
+
+        <!-- Submit -->
+
+        <button
+          mat-flat-button
+          type="submit"
+          class="submit-button">
+
+          Register
+
+        </button>
+
+
+      </form>
+
+
+      <!-- Login -->
+
+      <div class="login-link">
+
+        <span>
+          Already have an account?
+        </span>
+
+        <a routerLink="/login">
+          Sign In
+        </a>
+
+      </div>
+
+    </mat-card-content>
+
+  </mat-card>
+
+</div>
