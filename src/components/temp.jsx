@@ -1,93 +1,64 @@
-.auth-container {
-  min-height: calc(100vh - 64px);
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AsyncPipe } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+import {
+  increaseQuantity,
+  decreaseQuantity
+} from '../../../../store/cart/cart.actions';
 
-  padding: 24px;
-}
+import {
+  selectCartItems,
+  selectCartIsEmpty,
+  selectCartTotal
+} from '../../../../store/cart/cart.selectors';
 
-.auth-card {
-  width: 100%;
-  max-width: 480px;
-}
+@Component({
+  selector: 'app-cart-popover',
+  standalone: true,
+  imports: [
+    AsyncPipe,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule
+  ],
+  templateUrl: './cart-popover.html',
+  styleUrl: './cart-popover.scss'
+})
+export class CartPopover {
 
-mat-card-header {
-  margin-bottom: 24px;
-}
+  private store = inject(Store);
+  private router = inject(Router);
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+  cartItems = this.store.select(selectCartItems);
 
-mat-form-field {
-  width: 100%;
-}
+  cartIsEmpty = this.store.select(selectCartIsEmpty);
 
-.submit-button {
-  width: 100%;
-  height: 48px;
-  margin-top: 8px;
-}
+  cartTotal = this.store.select(selectCartTotal);
 
-.login-link {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 24px;
-}
-
-.login-link a {
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.register-error {
-  padding: 12px;
-  margin: 8px 0;
-  text-align: center;
-  border-radius: 4px;
-}
-
-
-
-
-
-import { Routes } from '@angular/router';
-
-export const routes: Routes = [
-
-  {
-    path: '',
-    redirectTo: 'products',
-    pathMatch: 'full'
-  },
-
-  {
-    path: 'products',
-    loadComponent: () =>
-      import(
-        './features/products/pages/product-list/product-list.component'
-      ).then(m => m.ProductListComponent)
-  },
-
-  {
-    path: 'login',
-    loadComponent: () =>
-      import(
-        './features/user/pages/login/login.component'
-      ).then(m => m.LoginComponent)
-  },
-
-  {
-    path: 'register',
-    loadComponent: () =>
-      import(
-        './features/user/pages/register/register.component'
-      ).then(m => m.RegisterComponent)
+  increase(productId: number): void {
+    this.store.dispatch(
+      increaseQuantity({ productId })
+    );
   }
 
-];
+  decrease(productId: number): void {
+    this.store.dispatch(
+      decreaseQuantity({ productId })
+    );
+  }
+
+  viewCart(): void {
+    this.router.navigate(['/cart']);
+  }
+}
+
+
+
+
+
+
