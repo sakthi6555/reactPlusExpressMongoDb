@@ -65,3 +65,18 @@ mat-divider {
     font-weight: 800;
   }
 }
+
+.pay-button {
+  width: 100%;
+  height: 48px;
+
+  margin-top: 24px;
+
+  border-radius: 999px;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  background: #e91e63;
+  color: #fff;
+}

@@ -65,6 +65,15 @@
 
     </div>
 
+    <button
+  mat-raised-button
+  class="pay-button"
+  type="button">
+
+  Pay Now
+
+</button>
+
   </mat-card-content>
 
 </mat-card>
