@@ -1,55 +1,74 @@
-.payment-page {
-  padding: 40px;
-  background: #fafafa;
-  min-height: 100vh;
-
-  h1 {
-    margin: 0 0 30px;
-
-    font-size: 32px;
-    font-weight: 800;
-    letter-spacing: 1px;
-  }
+.payment-card {
+  border-radius: 20px;
+  border: 1px solid #e5e5e5;
+  box-shadow: none;
 }
 
-.payment-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
-  gap: 30px;
-  align-items: start;
+mat-card-title {
+  font-size: 20px;
+  font-weight: 700;
 }
 
-.payment-left {
+.payment-methods {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 14px;
+  margin: 20px 0 25px;
 }
 
-.payment-right {
-  position: sticky;
-  top: 20px;
+.payment-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
+mat-form-field {
+  width: 100%;
+}
 
-@media (max-width: 900px) {
+.card-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
 
-  .payment-layout {
-    grid-template-columns: 1fr;
+.cod-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 20px;
+
+  border-radius: 12px;
+  background: #f5f5f5;
+
+  color: #555;
+
+  mat-icon {
+    flex-shrink: 0;
   }
 
-  .payment-right {
-    position: static;
+  p {
+    margin: 0;
   }
 }
 
+.pay-button {
+  width: 100%;
+  height: 48px;
+
+  margin-top: 25px;
+
+  border-radius: 999px;
+
+  font-size: 16px;
+  font-weight: 600;
+}
 
 @media (max-width: 600px) {
 
-  .payment-page {
-    padding: 20px;
-
-    h1 {
-      font-size: 26px;
-    }
+  .card-row {
+    grid-template-columns: 1fr;
   }
+
 }
