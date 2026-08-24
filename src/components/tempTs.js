@@ -1,58 +1,24 @@
 import {
   ChangeDetectionStrategy,
-  Component,
-  inject
+  Component
 } from '@angular/core';
 
-import { DecimalPipe } from '@angular/common';
-import { Store } from '@ngrx/store';
-
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatButtonModule } from '@angular/material/button';
-
-import { map } from 'rxjs';
-
-import { selectCartItems } from '../../../../store/cart/cart.selectors';
+import { CurrentOrder } from '../../components/current-order/current-order';
+import { PaymentForm } from '../../components/payment-form/payment-form';
+import { PaymentSummary } from '../../components/payment-summary/payment-summary';
 
 @Component({
-  selector: 'app-payment-summary',
+  selector: 'app-payment-page',
   standalone: true,
   imports: [
-    DecimalPipe,
-    MatCardModule,
-    MatDividerModule,
-    MatButtonModule
+    CurrentOrder,
+    PaymentForm,
+    PaymentSummary
   ],
-  templateUrl: './payment-summary.html',
-  styleUrl: './payment-summary.scss',
+  templateUrl: './payment-page.html',
+  styleUrl: './payment-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PaymentSummary {
+export class PaymentPage {
 
-  private readonly store = inject(Store);
-
-  readonly cartItems$ = this.store.select(selectCartItems);
-
-  readonly subtotal$ = this.cartItems$.pipe(
-    map(items =>
-      items.reduce(
-        (total, item) =>
-          total + item.price * item.quantity,
-        0
-      )
-    )
-  );
-
-  readonly discount$ = this.subtotal$.pipe(
-    map(subtotal => subtotal * 0.20)
-  );
-
-  readonly deliveryFee$ = this.cartItems$.pipe(
-    map(items => items.length > 0 ? 15 : 0)
-  );
-
-  readonly total$ = this.subtotal$.pipe(
-    map(subtotal => subtotal - subtotal * 0.20 + 15)
-  );
 }

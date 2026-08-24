@@ -1,79 +1,33 @@
-<mat-card class="summary-card">
+<div class="payment-page">
 
-  <mat-card-header>
-
-    <mat-card-title>
-      Order Summary
-    </mat-card-title>
-
-  </mat-card-header>
+  <h1>
+    PAYMENT
+  </h1>
 
 
-  <mat-card-content>
+  <div class="payment-layout">
 
-    <div class="summary-row">
 
-      <span>Subtotal</span>
+    <!-- LEFT -->
+    <div class="payment-left">
 
-      @if (subtotal$ | async; as subtotal) {
-        <strong>
-          ₹{{ subtotal | number:'1.0-0' }}
-        </strong>
-      }
+      <!-- Current Cart / Order -->
+      <app-current-order />
+
+
+      <!-- Payment Form -->
+      <app-payment-form />
 
     </div>
 
 
-    <div class="summary-row discount">
+    <!-- RIGHT -->
+    <aside class="payment-right">
 
-      <span>Discount (-20%)</span>
+      <app-payment-summary />
 
-      @if (discount$ | async; as discount) {
-        <strong>
-          -₹{{ discount | number:'1.0-0' }}
-        </strong>
-      }
+    </aside>
 
-    </div>
+  </div>
 
-
-    <div class="summary-row">
-
-      <span>Delivery Fee</span>
-
-      @if (deliveryFee$ | async; as delivery) {
-        <strong>
-          ₹{{ delivery | number:'1.0-0' }}
-        </strong>
-      }
-
-    </div>
-
-
-    <mat-divider></mat-divider>
-
-
-    <div class="summary-total">
-
-      <span>Total</span>
-
-      @if (total$ | async; as total) {
-        <strong>
-          ₹{{ total | number:'1.0-0' }}
-        </strong>
-      }
-
-    </div>
-
-    <button
-  mat-raised-button
-  class="pay-button"
-  type="button">
-
-  Pay Now
-
-</button>
-
-  </mat-card-content>
-
-</mat-card>
+</div>

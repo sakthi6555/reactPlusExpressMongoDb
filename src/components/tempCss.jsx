@@ -1,82 +1,55 @@
-.summary-card {
-  border-radius: 20px;
-  border: 1px solid #e5e5e5;
-  box-shadow: none;
-  background: #fff;
+.payment-page {
+  padding: 40px;
+  background: #fafafa;
+  min-height: 100vh;
 
-  // Keeps the summary visible while scrolling
+  h1 {
+    margin: 0 0 30px;
+
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+}
+
+.payment-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  gap: 30px;
+  align-items: start;
+}
+
+.payment-left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.payment-right {
   position: sticky;
   top: 20px;
 }
 
-mat-card-header {
-  padding-bottom: 20px;
-}
 
-mat-card-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #222;
-}
+@media (max-width: 900px) {
 
-mat-card-content {
-  padding-top: 10px;
-}
+  .payment-layout {
+    grid-template-columns: 1fr;
+  }
 
-.summary-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  margin-bottom: 18px;
-
-  font-size: 15px;
-  color: #555;
-
-  strong {
-    font-weight: 600;
-    color: #222;
+  .payment-right {
+    position: static;
   }
 }
 
-.summary-row.discount {
-  color: #e91e63;
 
-  strong {
-    color: #e91e63;
+@media (max-width: 600px) {
+
+  .payment-page {
+    padding: 20px;
+
+    h1 {
+      font-size: 26px;
+    }
   }
-}
-
-mat-divider {
-  margin: 8px 0 20px;
-}
-
-.summary-total {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  font-size: 18px;
-  font-weight: 700;
-  color: #222;
-
-  strong {
-    font-size: 22px;
-    font-weight: 800;
-  }
-}
-
-.pay-button {
-  width: 100%;
-  height: 48px;
-
-  margin-top: 24px;
-
-  border-radius: 999px;
-
-  font-size: 16px;
-  font-weight: 600;
-
-  background: #e91e63;
-  color: #fff;
 }
