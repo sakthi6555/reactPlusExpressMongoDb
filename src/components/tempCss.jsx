@@ -1,117 +1,67 @@
-.current-order-card {
+.summary-card {
   border-radius: 20px;
   border: 1px solid #e5e5e5;
   box-shadow: none;
+  background: #fff;
+
+  // Keeps the summary visible while scrolling
+  position: sticky;
+  top: 20px;
 }
 
 mat-card-header {
-  padding-bottom: 16px;
+  padding-bottom: 20px;
 }
 
 mat-card-title {
   font-size: 20px;
   font-weight: 700;
+  color: #222;
 }
 
-.order-items {
-  display: flex;
-  flex-direction: column;
+mat-card-content {
+  padding-top: 10px;
 }
 
-.order-item {
-  display: grid;
-  grid-template-columns: 90px 1fr auto;
-  gap: 20px;
-  padding: 20px 0;
-
-  border-bottom: 1px solid #ededed;
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.product-image {
-  width: 90px;
-  height: 90px;
-
+.summary-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 
-  background: #f5f5f5;
-  border-radius: 12px;
-  overflow: hidden;
+  margin-bottom: 18px;
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-}
+  font-size: 15px;
+  color: #555;
 
-.product-details {
-
-  h3 {
-    margin: 0 0 8px;
-    font-size: 16px;
+  strong {
     font-weight: 600;
-  }
-
-  p {
-    margin: 4px 0;
-    color: #777;
-    font-size: 13px;
+    color: #222;
   }
 }
 
-.product-price {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+.summary-row.discount {
+  color: #e91e63;
 
-  font-weight: 600;
-
-  span {
-    font-size: 17px;
-  }
-
-  small {
-    margin-top: 5px;
-    color: #777;
+  strong {
+    color: #e91e63;
   }
 }
 
-.empty-order {
-  min-height: 150px;
+mat-divider {
+  margin: 8px 0 20px;
+}
 
+.summary-total {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 
-  color: #777;
+  font-size: 18px;
+  font-weight: 700;
+  color: #222;
 
-  mat-icon {
-    font-size: 40px;
-    width: 40px;
-    height: 40px;
-  }
-}
-
-@media (max-width: 600px) {
-
-  .order-item {
-    grid-template-columns: 70px 1fr;
-  }
-
-  .product-image {
-    width: 70px;
-    height: 70px;
-  }
-
-  .product-price {
-    grid-column: 2;
-    align-items: flex-start;
+  strong {
+    font-size: 22px;
+    font-weight: 800;
   }
 }

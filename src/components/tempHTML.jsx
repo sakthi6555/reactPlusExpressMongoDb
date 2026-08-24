@@ -1,100 +1,69 @@
-<mat-card class="current-order-card">
+<mat-card class="summary-card">
 
   <mat-card-header>
+
     <mat-card-title>
-      REVIEW YOUR ORDER
+      Order Summary
     </mat-card-title>
 
-    <mat-card-subtitle>
-      Items you're purchasing
-    </mat-card-subtitle>
   </mat-card-header>
 
 
   <mat-card-content>
 
-    @if (cartItems$ | async; as items) {
+    <div class="summary-row">
 
-      @if (items.length > 0) {
+      <span>Subtotal</span>
 
-        <div class="order-items">
-
-          @for (item of items; track item.id) {
-
-            <div class="order-item">
-
-              <!-- Product Image -->
-              <div class="product-image">
-
-                <img
-                  [src]="item.image"
-                  [alt]="item.name"
-                />
-
-              </div>
-
-
-              <!-- Product Details -->
-              <div class="product-details">
-
-                <h3>
-                  {{ item.name }}
-                </h3>
-
-                <p>
-                  Color:
-                  {{ item.selectedColor || item.availableColors[0] }}
-                </p>
-
-                <p>
-                  Size:
-                  {{ item.selectedSize || item.availableSizes[0] }}
-                </p>
-
-                <p>
-                  Quantity:
-                  {{ item.quantity }}
-                </p>
-
-              </div>
-
-
-              <!-- Price -->
-              <div class="product-price">
-
-                <span>
-                  ₹{{ item.price | number:'1.0-0' }}
-                </span>
-
-                <small>
-                  × {{ item.quantity }}
-                </small>
-
-              </div>
-
-            </div>
-
-          }
-
-        </div>
-
-      } @else {
-
-        <div class="empty-order">
-
-          <mat-icon>
-            shopping_cart
-          </mat-icon>
-
-          <p>
-            Your cart is empty.
-          </p>
-
-        </div>
-
+      @if (subtotal$ | async; as subtotal) {
+        <strong>
+          ₹{{ subtotal | number:'1.0-0' }}
+        </strong>
       }
 
-    }
+    </div>
+
+
+    <div class="summary-row discount">
+
+      <span>Discount (-20%)</span>
+
+      @if (discount$ | async; as discount) {
+        <strong>
+          -₹{{ discount | number:'1.0-0' }}
+        </strong>
+      }
+
+    </div>
+
+
+    <div class="summary-row">
+
+      <span>Delivery Fee</span>
+
+      @if (deliveryFee$ | async; as delivery) {
+        <strong>
+          ₹{{ delivery | number:'1.0-0' }}
+        </strong>
+      }
+
+    </div>
+
+
+    <mat-divider></mat-divider>
+
+
+    <div class="summary-total">
+
+      <span>Total</span>
+
+      @if (total$ | async; as total) {
+        <strong>
+          ₹{{ total | number:'1.0-0' }}
+        </strong>
+      }
+
+    </div>
 
   </mat-card-content>
 
