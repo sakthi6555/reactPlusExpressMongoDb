@@ -1,4 +1,69 @@
-// order list ts
+<h2 mat-dialog-title>
+  Login Required
+</h2>
+
+<mat-dialog-content>
+
+  <p>
+    Please login to continue with checkout.
+  </p>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+
+  <button
+    mat-button
+    mat-dialog-close="cancel">
+
+    Cancel
+
+  </button>
+
+  <button
+    mat-raised-button
+    color="primary"
+    [mat-dialog-close]="'login'">
+
+    OK
+
+  </button>
+
+</mat-dialog-actions>
+
+
+
+
+// ts
+
+import {
+  ChangeDetectionStrategy,
+  Component
+} from '@angular/core';
+
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+
+@Component({
+  selector: 'app-login-required-dialog',
+  standalone: true,
+  imports: [
+    MatDialogModule,
+    MatButtonModule,
+    MatButtonModule,
+  MatIconModule
+  ],
+  templateUrl: './login-required-dialog.html',
+  styleUrl: './login-required-dialog.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class LoginRequiredDialog {}
+
+
+
+// cart page
 
 import {
   ChangeDetectionStrategy,
@@ -6,277 +71,99 @@ import {
   inject
 } from '@angular/core';
 
-import { AsyncPipe } from '@angular/common';
+import {
+  Router
+} from '@angular/router';
 
 import {
-  catchError,
-  map,
-  of,
-  shareReplay
-} from 'rxjs';
+  MatDialog
+} from '@angular/material/dialog';
 
-import { OrderService } from '../../../../core/services/order.service';
+import {
+  AuthService
+} from '../../../core/services/auth.service';
 
-import { CurrentOrder } from '../../components/current-order/current-order';
-import { OrderHistory } from '../../components/order-history/order-history';
+import {
+  LoginRequiredDialog
+} from '../../user/components/login-required-dialog/login-required-dialog';
 
 @Component({
-  selector: 'app-order-list-page',
+  selector: 'app-cart-page',
   standalone: true,
-  imports: [
-    AsyncPipe,
-    CurrentOrder,
-    OrderHistory
-  ],
-  templateUrl: './order-list-page.html',
-  styleUrl: './order-list-page.scss',
+  imports: [],
+  templateUrl: './cart-page.html',
+  styleUrl: './cart-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class OrderListPage {
+export class CartPage {
 
-  private readonly orderService =
-    inject(OrderService);
+  private readonly router =
+    inject(Router);
 
+  private readonly dialog =
+    inject(MatDialog);
 
-  /*
-   * For now using dummy logged-in user.
-   *
-   * Later this should come from
-   * your User/Auth state.
-   */
-  private readonly userId =
-    'USR-001';
+  private readonly authService =
+    inject(AuthService);
 
 
-  readonly orders$ =
-    this.orderService
-      .getOrdersByUser(this.userId)
-      .pipe(
+  checkout(): void {
 
-        catchError(error => {
+    // -------------------------
+    // User is logged in
+    // -------------------------
 
-          console.error(
-            'Unable to load orders',
-            error
-          );
+    if (this.authService.isLoggedIn()) {
 
-          return of([]);
+      this.router.navigate([
+        '/payment'
+      ]);
 
-        }),
+      return;
+    }
 
-        shareReplay({
-          bufferSize: 1,
-          refCount: true
-        })
 
+    // -------------------------
+    // User is NOT logged in
+    // -------------------------
+
+    const dialogRef =
+      this.dialog.open(
+        LoginRequiredDialog,
+        {
+          width: '400px',
+          disableClose: true
+        }
       );
 
 
-  readonly currentOrder$ =
-    this.orders$.pipe(
+    dialogRef.afterClosed()
+      .subscribe(result => {
 
-      map(orders => {
+        if (result === 'login') {
 
-        if (!orders.length) {
-          return null;
-        }
-
-        return [...orders]
-          .sort(
-            (a, b) =>
-              new Date(b.createdAt).getTime() -
-              new Date(a.createdAt).getTime()
-          )[0];
-
-      })
-
-    );
-
-
-  readonly orderHistory$ =
-    this.orders$.pipe(
-
-      map(orders => {
-
-        return [...orders]
-          .sort(
-            (a, b) =>
-              new Date(b.createdAt).getTime() -
-              new Date(a.createdAt).getTime()
-          )
-          .slice(1);
-
-      })
-
-    );
-}
-
-
-
-
-
-// order list html
-
-<div class="orders-page">
-
-  <div class="page-header">
-
-    <h1>YOUR ORDERS</h1>
-
-    <p>
-      View your current order and previous orders
-    </p>
-
-  </div>
-
-
-  @if (orders$ | async; as orders) {
-
-    @if (orders.length === 0) {
-
-      <div class="no-orders">
-
-        <mat-icon>
-          shopping_bag
-        </mat-icon>
-
-        <h2>No orders found</h2>
-
-        <p>
-          You haven't placed any orders yet.
-        </p>
-
-        <button
-          mat-raised-button
-          color="primary"
-          routerLink="/products">
-
-          Continue Shopping
-
-        </button>
-
-      </div>
-
-    } @else {
-
-      <!-- CURRENT ORDER -->
-
-      <section class="current-order-section">
-
-        <h2>Current Order</h2>
-
-        @if (currentOrder$ | async; as currentOrder) {
-
-          <app-current-order
-            [order]="currentOrder">
-          </app-current-order>
+          this.router.navigate([
+            '/login'
+          ]);
 
         }
 
-      </section>
-
-
-      <!-- ORDER HISTORY -->
-
-      <section class="order-history-section">
-
-        <h2>Order History</h2>
-
-        @if (orderHistory$ | async; as history) {
-
-          @if (history.length > 0) {
-
-            <app-order-history
-              [orders]="history">
-            </app-order-history>
-
-          } @else {
-
-            <p class="no-history">
-              No previous orders found.
-            </p>
-
-          }
-
-        }
-
-      </section>
-
-    }
+      });
 
   }
 
-</div>
-
-
-
-
-
-
-// scss
-
-
-
-
-.orders-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 24px;
 }
 
-.page-header {
-  margin-bottom: 40px;
-}
 
-.page-header h1 {
-  margin: 0;
-  font-size: 36px;
-  font-weight: 800;
-}
+// html
 
-.page-header p {
-  color: #777;
-  margin-top: 8px;
-}
 
-.current-order-section,
-.order-history-section {
-  margin-bottom: 40px;
-}
+<button
+  mat-raised-button
+  class="checkout-button"
+  (click)="checkout()">
 
-.current-order-section h2,
-.order-history-section h2 {
-  margin-bottom: 20px;
-  font-size: 24px;
-}
+  Go to Checkout
+  <mat-icon>arrow_forward</mat-icon>
 
-.no-orders {
-  min-height: 350px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  border: 1px dashed #ddd;
-  border-radius: 20px;
-  background: #fafafa;
-}
-
-.no-orders mat-icon {
-  width: 60px;
-  height: 60px;
-  font-size: 60px;
-  margin-bottom: 20px;
-}
-
-.no-orders h2 {
-  margin: 0;
-}
-
-.no-orders p {
-  color: #777;
-}
-
-.no-history {
-  color: #777;
-}
+</button>
