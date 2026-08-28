@@ -1,26 +1,21 @@
-.best-seller-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
+import { inject } from '@angular/core';
+import {
+  CanActivateFn,
+  Router
+} from '@angular/router';
 
-  padding: 6px 12px;
+export const authGuard: CanActivateFn = () => {
 
-  background: #e91e63;
-  color: white;
+  const router = inject(Router);
 
-  border-radius: 999px;
+  const userEmail =
+    localStorage.getItem('user_email');
 
-  font-size: 12px;
-  font-weight: 600;
+  if (userEmail) {
+    return true;
+  }
 
-  text-transform: uppercase;
-}
-
-
-
-
- @if (product().isBestSeller) {
-      <span class="best-seller-badge">
-        Best Seller
-      </span>
-    }
+  return router.createUrlTree([
+    '/login'
+  ]);
+};
