@@ -1,58 +1,141 @@
-report-expense-type.component.ts
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
-import { Component, signal } from '@angular/core';
+import { ExpenseLookups } from '../models/expense-lookup.model';
 
-@Component({
-  selector: 'app-report-expense-type',
-  templateUrl: './report-expense-type.component.html'
+@Injectable({
+  providedIn: 'root'
 })
-export class ReportExpenseTypeComponent {
+export class ExpenseLookupApiService {
 
-  // Parent owns the state
-  receiptVisible = signal(true);
+  private readonly http = inject(HttpClient);
 
-  toggleReceipt(): void {
-    this.receiptVisible.update(value => !value);
+  getExpenseLookups() {
+    return this.http.get<ExpenseLookups>(
+      '/api/expense/lookups'
+    );
   }
 }
 
 
 
 
-report-expense-type.component.html
 
 
-<div class="flex w-full flex-col lg:flex-row">
-
-  <!-- LEFT: Claim Type Detail -->
-  <div
-    class="w-full p-4 transition-all duration-300"
-    [class.lg:w-1/2]="receiptVisible()"
-    [class.lg:w-full]="!receiptVisible()"
-  >
-
-    <app-claim-type-detail
-      [receiptVisible]="receiptVisible()"
-      (receiptToggle)="toggleReceipt()"
-    />
-
-  </div>
+src/app/core/store/expense-lookup.store.ts
 
 
-  <!-- RIGHT: Expense Receipt -->
-  @if (receiptVisible()) {
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable, of, tap, shareReplay } from 'rxjs';
 
-    <div
-      class="w-full p-4 lg:w-1/2"
-    >
+import {
+  ExpenseLookups,
+  LookupItem
+} from '../models/expense-lookup.model';
 
-      <app-expense-receipt />
+import { ExpenseLookupApiService } from '../services/expense-lookup-api.service';
 
-    </div>
+@Injectable({
+  providedIn: 'root'
+})
+export class ExpenseLookupStore {
 
+  private readonly api =
+    inject(ExpenseLookupApiService);
+
+  // Actual lookup data stored in memory
+  private readonly _lookups =
+    signal<ExpenseLookups | null>(null);
+
+  // Read-only signal exposed to components
+  readonly lookups =
+    this._lookups.asReadonly();
+
+  // Prevent multiple API calls
+  private loadRequest$?: Observable<ExpenseLookups>;
+
+  // --------------------------------
+  // Load API
+  // --------------------------------
+
+  load(): Observable<ExpenseLookups> {
+
+    // Already loaded
+    if (this._lookups()) {
+      return of(this._lookups()!);
+    }
+
+    // API request already in progress
+    if (this.loadRequest$) {
+      return this.loadRequest$;
+    }
+
+    // First API call
+    this.loadRequest$ =
+      this.api.getExpenseLookups().pipe(
+
+        tap(data => {
+          this._lookups.set(data);
+        }),
+
+        // Make all callers share the same API response
+        shareReplay(1)
+      );
+
+    return this.loadRequest$;
   }
 
-</div>
+  // --------------------------------
+  // Get individual lookup
+  // --------------------------------
+
+  getLookup(
+    lookupKey: string
+  ): LookupItem[] {
+
+    const data = this._lookups();
+
+    if (!data) {
+      return [];
+    }
+
+    switch (lookupKey) {
+
+      case 'VENDOR':
+        return data.vendors;
+
+      case 'CURRENCY':
+        return data.currencies;
+
+      case 'AIRPORT':
+        return data.airports;
+
+      case 'PAYMENT_TYPE':
+        return data.paymentTypes;
+
+      case 'BILLABLE':
+        return data.billableValues;
+
+      case 'CITY':
+        return data.cities;
+
+      case 'AIRLINE_TRAVEL_SERVICE_CODE':
+        return data.airlineTravelServiceCodes;
+
+      default:
+        return [];
+    }
+  }
+
+  // --------------------------------
+  // Clear memory
+  // --------------------------------
+
+  clear(): void {
+    this._lookups.set(null);
+    this.loadRequest$ = undefined;
+  }
+}
 
 
 
@@ -60,212 +143,100 @@ report-expense-type.component.html
 
 
 
+api response:
 
-claim-type-detail.component.ts
+{
+  "vendors": [
+    {
+      "label": "Emirates",
+      "value": "EK"
+    }
+  ],
+  "currencies": [
+    {
+      "label": "US Dollar",
+      "value": "USD"
+    },
+    {
+      "label": "Indian Rupee",
+      "value": "INR"
+    }
+  ],
+  "airports": [
+    {
+      "label": "Chennai",
+      "value": "MAA"
+    }
+  ],
+  "paymentTypes": [
+    {
+      "label": "Credit Card",
+      "value": "CARD"
+    }
+  ],
+  "billableValues": [
+    {
+      "label": "Yes",
+      "value": "YES"
+    },
+    {
+      "label": "No",
+      "value": "NO"
+    }
+  ],
+  "cities": [
+    {
+      "label": "Chennai",
+      "value": "CHENNAI"
+    }
+  ],
+  "airlineTravelServiceCodes": []
+}
+
+
+
+
+
+
+
+src/app/features/expense/expense.component.ts
 
 import {
   Component,
-  input,
-  output
+  inject,
+  OnInit
 } from '@angular/core';
 
+import { ExpenseLookupStore } from '../../core/store/expense-lookup.store';
+
 @Component({
-  selector: 'app-claim-type-detail',
-  templateUrl: './claim-type-detail.component.html'
+  selector: 'app-expense',
+  standalone: true,
+  templateUrl: './expense.component.html'
 })
-export class ClaimTypeDetailComponent {
+export class ExpenseComponent implements OnInit {
 
-  // Parent → Child
-  receiptVisible = input(true);
+  private readonly lookupStore =
+    inject(ExpenseLookupStore);
 
-  // Child → Parent
-  receiptToggle = output<void>();
+  ngOnInit(): void {
 
-  fields = [
-    {
-      name: 'Expense Type',
-      type: 'text'
-    },
-    {
-      name: 'Amount',
-      type: 'number'
-    },
-    {
-      name: 'Expense Date',
-      type: 'date'
-    },
-    {
-      name: 'Merchant',
-      type: 'text'
-    },
-    {
-      name: 'Currency',
-      type: 'text'
-    },
-    {
-      name: 'Description',
-      type: 'text'
-    },
-    {
-      name: 'Location',
-      type: 'text'
-    },
-    {
-      name: 'Cost Center',
-      type: 'text'
-    }
-  ];
+    // Load lookup data once
+    this.lookupStore.load().subscribe({
+      next: () => {
+        console.log('Expense lookups loaded');
+      },
 
-  toggleReceipt(): void {
-    this.receiptToggle.emit();
+      error: error => {
+        console.error(
+          'Failed to load expense lookups',
+          error
+        );
+      }
+    });
   }
 }
 
 
 
 
-
-
-
-claim-type-detail.component.html
-
-
-<div class="w-full">
-
-  <!-- Header -->
-  <div class="mb-4 flex items-center justify-between">
-
-    <h2 class="text-xl font-semibold">
-      Claim Type Details
-    </h2>
-
-    <button
-      pButton
-      type="button"
-      [icon]="
-        receiptVisible()
-          ? 'pi pi-angle-right'
-          : 'pi pi-angle-left'
-      "
-      [label]="
-        receiptVisible()
-          ? 'Hide Receipt'
-          : 'Show Receipt'
-      "
-      (click)="toggleReceipt()"
-    ></button>
-
-  </div>
-
-
-  <!-- Form -->
-  <form>
-
-    <div
-      class="grid grid-cols-1 gap-4"
-      [class.lg:grid-cols-2]="receiptVisible()"
-      [class.lg:grid-cols-4]="!receiptVisible()"
-    >
-
-      @for (field of fields; track field.name) {
-
-        <div class="w-full">
-
-          <label class="mb-1 block font-medium">
-            {{ field.name }}
-          </label>
-
-
-          @switch (field.type) {
-
-            @case ('text') {
-
-              <input
-                pInputText
-                class="w-full"
-              />
-
-            }
-
-            @case ('number') {
-
-              <p-inputnumber
-                styleClass="w-full"
-              />
-
-            }
-
-            @case ('date') {
-
-              <p-datepicker
-                styleClass="w-full"
-              />
-
-            }
-
-          }
-
-        </div>
-
-      }
-
-    </div>
-
-  </form>
-
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-fields = signal([
-  {
-    name: 'Expense Type',
-    type: 'select',
-    required: true
-  },
-  {
-    name: 'Amount',
-    type: 'number',
-    required: true
-  },
-  {
-    name: 'Expense Date',
-    type: 'date',
-    required: true
-  },
-  {
-    name: 'Merchant',
-    type: 'text',
-    required: false
-  },
-  {
-    name: 'Currency',
-    type: 'select',
-    required: true
-  },
-  {
-    name: 'Description',
-    type: 'textarea',
-    required: false
-  },
-  {
-    name: 'Location',
-    type: 'text',
-    required: false
-  },
-  {
-    name: 'Cost Center',
-    type: 'select',
-    required: true
-  }
-]);
